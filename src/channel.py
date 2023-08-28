@@ -13,12 +13,43 @@ class Channel:
         self.title = self.channel_info['items'][0]['snippet']['title']
         self.description = self.channel_info['items'][0]['snippet']['description']
         self.url = 'https://www.youtube.com/' + self.channel_info['items'][0]['snippet']['customUrl']
-        self.subscriber_count = self.channel_info['items'][0]['statistics']['subscriberCount']
-        self.video_count = self.channel_info['items'][0]['statistics']['videoCount']
-        self.view_count = self.channel_info['items'][0]['statistics']['viewCount']
+        self.subscriber_count = int(self.channel_info['items'][0]['statistics']['subscriberCount'])
+        self.video_count = int(self.channel_info['items'][0]['statistics']['videoCount'])
+        self.view_count = int(self.channel_info['items'][0]['statistics']['viewCount'])
+
+    def __str__(self) -> str:
+        return f"{self.title} ({self.url})"
+
+    def __add__(self, other) -> int:
+        """Метод возвращает сумму подписчиков 2х каналов"""
+        return self.subscriber_count + other.subscriber_count
+
+    def __sub__(self, other) -> int:
+        """Метод возвращает разность подписчиков 2х каналов"""
+        return self.subscriber_count - other.subscriber_count
+
+    def __eq__(self, other) -> bool:
+        """Метод возвращает истину, когда количество подписчиков равно"""
+        return self.subscriber_count == other.subscriber_count
+
+    def __gt__(self, other) -> bool:
+        """Метод возвращает истину, когда у первого канала подписчиков больше"""
+        return self.subscriber_count > other.subscriber_count
+
+    def __lt__(self, other) -> bool:
+        """Метод возвращает истину, когда у первого канала подписчиков меньше"""
+        return self.subscriber_count < other.subscriber_count
+
+    def __ge__(self, other) -> bool:
+        """Метод возвращает истину, когда у первого канала подписчиков больше или равно"""
+        return self.subscriber_count >= other.subscriber_count
+
+    def __le__(self, other) -> bool:
+        """Метод возвращает истину, когда у первого канала подписчиков меньше или равно"""
+        return self.subscriber_count <= other.subscriber_count
 
     @property
-    def channel_id(self):
+    def channel_id(self) -> str:
         return self.__channel_id
 
     @classmethod
@@ -30,19 +61,19 @@ class Channel:
         return build('youtube', 'v3', developerKey=api_key)
 
     @classmethod
-    def get_channel_info(cls, channel_id):
+    def get_channel_info(cls, channel_id: str) -> dict:
         """
         Метод возвращает информацию о канале по ID канала
         """
         channel_info = cls.get_service().channels().list(id=channel_id, part='snippet,statistics').execute()
         return channel_info
 
-    def to_json(self, filename):
+    def to_json(self, filename: str) -> None:
         """
         Метод сохраняет атрибуты экземпляра класса в файл json.
         """
         file_content = {
-            'channel_id': self.id,
+            'channel_id': self.__channel_id,
             'channel_name': self.title,
             'channel_description': self.description,
             'channel_url': self.url,

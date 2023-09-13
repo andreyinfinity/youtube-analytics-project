@@ -4,15 +4,21 @@ from googleapiclient.discovery import build
 
 class Video:
     def __init__(self, video_id: str):
-        self.video_id: str = video_id
-        self.video_info: dict = self.get_video_info(video_id)
-        self.video_title: str = self.video_info["items"][0]["snippet"]["title"]
-        self.video_url: str = "https://www.youtube.com/watch?v=" + f"{video_id}"
-        self.view_count: int = int(self.video_info["items"][0]["statistics"]["viewCount"])
-        self.video_like_count: int = int(self.video_info["items"][0]["statistics"]["likeCount"])
+        self.id: str = video_id
+        self.__info: dict = self.get_video_info(video_id)
+        try:
+            self.title: str = self.__info["items"][0]["snippet"]["title"]
+            self.url: str = "https://www.youtube.com/watch?v=" + f"{video_id}"
+            self.view_count: int = int(self.__info["items"][0]["statistics"]["viewCount"])
+            self.like_count: int = int(self.__info["items"][0]["statistics"]["likeCount"])
+        except IndexError:
+            self.title: str | None = None
+            self.url: str | None = None
+            self.view_count: int | None = None
+            self.like_count: int | None = None
 
     def __str__(self) -> str:
-        return f"{self.video_title}"
+        return f"{self.title}"
 
     @classmethod
     def get_service(cls):
@@ -28,7 +34,7 @@ class Video:
         Метод возвращает информацию о видеоролике по его ID
         """
         video_response = cls.get_service().videos().list(part='snippet,statistics,contentDetails,topicDetails',
-                                               id=video_id).execute()
+                                                         id=video_id).execute()
         return video_response
 
 
